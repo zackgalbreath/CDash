@@ -14,10 +14,8 @@ class LdapUtils
     {
         if ($user->ldapguid === null) {
             $ldap_user = null;
-        } elseif (env('LDAP_PROVIDER', 'openldap') === 'activedirectory') {
-            $ldap_user = \LdapRecord\Models\ActiveDirectory\User::findByGuid($user->ldapguid);
         } else {
-            $ldap_user = \LdapRecord\Models\OpenLDAP\User::findByGuid($user->ldapguid);
+            $ldap_user = \App\Ldap\User::findByGuid($user->ldapguid);
         }
 
         $projects = Project::with('users')->get();

@@ -20,6 +20,11 @@ class FilterRules implements Rule
             return true;
         }
 
+        // These should always be Users, so explicitly verify this to assist with static analysis
+        if (!($user instanceof \App\Ldap\User)) {
+            return false;
+        }
+
         return $user->groups()
             ->recursive()
             ->exists(\LdapRecord\Models\Entry::find($filter));
