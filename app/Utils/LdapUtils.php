@@ -15,7 +15,7 @@ class LdapUtils
         if ($user->ldapguid === null) {
             $ldap_user = null;
         } else {
-            $ldap_user = \App\Ldap\User::findByGuid($user->ldapguid);
+            $ldap_user = \App\Ldap\User::findBy(env('LDAP_LOCATE_USERS_BY', 'mail'), $user->email);
         }
 
         $projects = Project::with('users')->get();
@@ -25,9 +25,14 @@ class LdapUtils
                 continue;
             }
 
-            $matches_ldap_filter = $ldap_user !== null && $ldap_user->groups()
-                ->recursive()
-                ->exists(\LdapRecord\Models\Entry::find($project->ldapfilter));
+	    $member_attr = env('LDAP_UNIQUE_MEMBER_ATTRIBUTE', 'uniquemember');
+	    $matches_ldap_filter = false;
+	    $connection = \LdapRecord\Container::getDefaultConnection();
+	    $query = $connection->query();
+	    $results = $query->setDn($project->ldapfilter)->select($member_attr)->get();
+	    if (array_key_exists($member_attr, $results[0])) {
+	        $matches_ldap_filter = in_array($user->email, $results[0][$member_attr]);
+	    }
 
             $relationship_already_exists = $project->users->contains($user);
 
