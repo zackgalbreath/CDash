@@ -28,6 +28,9 @@ class EventServiceProvider extends ServiceProvider
         \Illuminate\Auth\Events\Login::class=>[
             \App\Listeners\SuccessfulLdapAuthListener::class,
         ],
+        \Illuminate\Queue\Events\JobTimedOut::class=>[
+            \App\Listeners\JobTimedOutListener::class,
+        ],
     ];
 
     /**
