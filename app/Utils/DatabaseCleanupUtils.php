@@ -368,13 +368,13 @@ class DatabaseCleanupUtils
     }
 
     /** Delete unused rows in batches */
-    public static function deleteUnusedRows(string $table, string $field, string $targettable, string $selectfield = 'id'): void
+    public static function deleteUnusedRows(string $table, string $field, string $targettable, string $selectfield = 'id'): int
     {
         $start = DB::table($table)->min($field);
         $max = DB::table($table)->max($field);
         if (!is_numeric($start) || !is_numeric($max)) {
             Log::info("Could not determine min and max for `{$field}` on `{$table}`");
-            return;
+            return -1;
         }
 
         $start = intval($start);
@@ -382,7 +382,7 @@ class DatabaseCleanupUtils
         $total = $max - $start + 1;
         if ($total < 1) {
             Log::info("Invalid values found for min ({$start}) and/or max ({$max}) for `{$field}` on `{$table}`");
-            return;
+            return -1;
         }
         $num_done = 0;
         $num_deleted = 0;
@@ -411,5 +411,6 @@ class DatabaseCleanupUtils
             }
         }
         Log::info("{$num_deleted} rows deleted from `{$table}`");
+        return $num_deleted;
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
+use App\Utils\DatabaseCleanupUtils;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -12,7 +12,7 @@ return new class extends Migration {
     public function up(): void
     {
         echo "Adding foreign key constraint test2image(outputid)->testoutput(id)...";
-        $num_deleted = DB::delete("DELETE FROM test2image WHERE outputid NOT IN (SELECT id FROM testoutput)");
+        $num_deleted = DatabaseCleanupUtils::deleteUnusedRows('test2image', 'outputid', 'testoutput', 'id');
         echo $num_deleted . ' invalid rows deleted' . PHP_EOL;
         Schema::table('test2image', function (Blueprint $table) {
             $table->foreign('outputid')->references('id')->on('testoutput')->cascadeOnDelete();

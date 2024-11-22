@@ -1,8 +1,8 @@
 <?php
 
+use App\Utils\DatabaseCleanupUtils;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -17,7 +17,7 @@ return new class extends Migration {
         });
 
         echo "Adding foreign key constraint configureerror(configureid)->configure(id)...";
-        $num_deleted = DB::delete("DELETE FROM configureerror WHERE configureid NOT IN (SELECT id FROM configure)");
+        $num_deleted = DatabaseCleanupUtils::deleteUnusedRows('configureerror', 'configureid', 'configure', 'id');
         echo $num_deleted . ' invalid rows deleted' . PHP_EOL;
         Schema::table('configureerror', function (Blueprint $table) {
             $table->foreign('configureid')->references('id')->on('configure')->cascadeOnDelete();
